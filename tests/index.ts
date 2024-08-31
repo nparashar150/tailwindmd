@@ -1,4 +1,4 @@
-import parse from "..";
+import { generateASTFromMarkdown } from "..";
 
 const input = `
     # Heading 1
@@ -72,5 +72,5 @@ const input = `
     ---
   `;
 
-const tokens = parse(input);
+const tokens = generateASTFromMarkdown(input);
 console.log(tokens);
