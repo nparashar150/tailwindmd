@@ -2,9 +2,13 @@
   "name": "tailwindmd",
   "version": "0.0.1",
   "description": "",
-  "main": "index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "pnpm nodemon --watch \"**/*.ts\" --ext \"ts,json\" --exec \"ts-node tests/index.ts\""
+    "build": "tsup index.ts --format cjs,esm --dts",
+    "release": "pnpm run build && changeset publish",
+    "lint": "tsc"
   },
   "keywords": [
     "tailwindcss",
@@ -24,5 +28,9 @@
     "@types/node": "^22.5.1",
     "nodemon": "^3.1.4",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@changesets/cli": "^2.27.7",
+    "tsup": "^8.2.4"
   }
 }

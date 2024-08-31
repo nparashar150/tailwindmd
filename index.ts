@@ -5,4 +5,3 @@ export const generateASTFromMarkdown = (input: string) => {
   return tokens;
 };
 
-export default generateASTFromMarkdown;

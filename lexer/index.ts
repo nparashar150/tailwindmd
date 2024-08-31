@@ -1,4 +1,5 @@
-import { MAX_NESTING_DEPTH, Token, TokenType } from "../configs";
+import { MAX_NESTING_DEPTH, TokenType } from "../configs";
+import type { Token } from "../configs";
 
 const lexer = (input: string, depth: number = 0): Token[] => {
   const tokens: Token[] = [];
@@ -31,8 +32,8 @@ const lexer = (input: string, depth: number = 0): Token[] => {
      */
     const classMatch = line.trim().match(/^\["(.*?)"\]\s*(.*)/);
     if (classMatch) {
-      const classPart = classMatch[1];
-      const content = classMatch[2].trim();
+      const classPart = classMatch[1] || "";
+      const content = classMatch[2]?.trim();
 
       const classToken: Token = {
         type: TokenType.CLASS,
@@ -41,7 +42,7 @@ const lexer = (input: string, depth: number = 0): Token[] => {
         end: { line: lineIndex + 1, column: line.length }
       };
 
-      let nestedTokens = content && lexer(content, depth + 1);
+      let nestedTokens = content && lexer(content, depth + 1) || [];
       if (nestedTokens.length > 0) {
         // Adjust the line and column numbers for nested tokens
         nestedTokens = nestedTokens.map((token) => {
@@ -69,9 +70,9 @@ const lexer = (input: string, depth: number = 0): Token[] => {
     // ** HEADING CHECK
     const headingMatch = line.trim().match(/^(#{1,6})\s+(.*)/);
     if (headingMatch) {
-      const level = headingMatch[1].length; // Number of # determines level
+      const level = headingMatch[1]?.length; // Number of # determines level
       const headingType = `HEADING_${level}` as TokenType;
-      tokens.push({ type: headingType, value: headingMatch[2], start: { line: lineIndex + 1, column: 0 }, end: { line: lineIndex + 1, column: line.length } });
+      tokens.push({ type: headingType, value: headingMatch[2] || "", start: { line: lineIndex + 1, column: 0 }, end: { line: lineIndex + 1, column: line.length } });
       lineIndex++;
       continue;
     }
@@ -94,8 +95,8 @@ const lexer = (input: string, depth: number = 0): Token[] => {
       };
 
       // Accumulate blockquote content
-      while (lineIndex < lines.length && lines[lineIndex].trim().startsWith(">")) {
-        const blockquoteLine = lines[lineIndex].trim().replace(/^>\s*/, ""); // Remove the blockquote marker
+      while (lineIndex < lines.length && lines[lineIndex]?.trim().startsWith(">")) {
+        const blockquoteLine = lines[lineIndex]?.trim().replace(/^>\s*/, "") || ""; // Remove the blockquote marker
 
         // Tokenize inline styles directly within blockquote content
         const inlineTokens = inlineStyleLexer(blockquoteLine, lineIndex + 1);
@@ -103,19 +104,19 @@ const lexer = (input: string, depth: number = 0): Token[] => {
         // If the inline lexer produces multiple tokens, append them directly
         if (inlineTokens.length > 0) {
           inlineTokens.forEach((token) => {
-            blockquote.children.push(token);
+            blockquote?.children?.push(token);
           });
         } else {
           // Otherwise, add a paragraph if the content has no inline styling
-          blockquote.children.push({
+          blockquote?.children?.push({
             type: TokenType.PARAGRAPH,
             value: blockquoteLine,
             start: { line: lineIndex + 1, column: 0 },
-            end: { line: lineIndex + 1, column: lines[lineIndex].length }
+            end: { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 }
           });
         }
 
-        blockquote.end = { line: lineIndex + 1, column: lines[lineIndex].length };
+        blockquote.end = { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 };
         lineIndex++;
       }
 
@@ -180,21 +181,21 @@ const lexer = (input: string, depth: number = 0): Token[] => {
       };
 
       // Accumulate list items
-      while (lineIndex < lines.length && isUnorderedList(lines[lineIndex])) {
+      while (lineIndex < lines.length && isUnorderedList(lines[lineIndex] || "")) {
         const listItemLine = lines[lineIndex];
-        const listItemContent = listItemLine.trim().replace(/^[-*+]\s+/, ""); // Remove the marker
+        const listItemContent = listItemLine?.trim().replace(/^[-*+]\s+/, "") || ""; // Remove the marker
 
         const inlineTokens = inlineStyleLexer(listItemContent, lineIndex + 1);
         const listItemToken: Token = {
           type: TokenType.LIST_ITEM,
-          value: null,
+          value: "",
           start: { line: lineIndex + 1, column: 0 },
-          end: { line: lineIndex + 1, column: lines[lineIndex].length },
+          end: { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 },
           children: inlineTokens
         };
 
-        listToken.children.push(listItemToken);
-        listToken.end = { line: lineIndex + 1, column: lines[lineIndex].length };
+        listToken?.children?.push(listItemToken);
+        listToken.end = { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 };
         lineIndex++;
       }
 
@@ -213,21 +214,21 @@ const lexer = (input: string, depth: number = 0): Token[] => {
       };
 
       // Accumulate list items
-      while (lineIndex < lines.length && isOrderedList(lines[lineIndex])) {
+      while (lineIndex < lines.length && isOrderedList(lines[lineIndex] || "")) {
         const listItemLine = lines[lineIndex];
-        const listItemContent = listItemLine.trim().replace(/^\d+\.\s+/, ""); // Remove the marker
+        const listItemContent = listItemLine?.trim().replace(/^\d+\.\s+/, "") || ""; // Remove the marker
 
         const inlineTokens = inlineStyleLexer(listItemContent, lineIndex + 1);
         const listItemToken: Token = {
           type: TokenType.LIST_ITEM,
-          value: null,
+          value: "",
           start: { line: lineIndex + 1, column: 0 },
-          end: { line: lineIndex + 1, column: lines[lineIndex].length },
+          end: { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 },
           children: inlineTokens
         };
 
-        listToken.children.push(listItemToken);
-        listToken.end = { line: lineIndex + 1, column: lines[lineIndex].length };
+        listToken?.children?.push(listItemToken);
+        listToken.end = { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 };
         lineIndex++;
       }
 
@@ -263,25 +264,25 @@ const lexer = (input: string, depth: number = 0): Token[] => {
         end: { line: lineIndex + 1, column: line.length },
         children: headerCells.map((header) => ({
           type: TokenType.TABLE_CELL,
-          value: null, // Keep value null since it's parsed into children tokens
+          value: "", // Keep value "" since it's parsed into children tokens
           start: { line: lineIndex + 1, column: headerLine.indexOf(header) },
           end: { line: lineIndex + 1, column: headerLine.indexOf(header) + header.length },
           children: inlineStyleLexer(header, lineIndex + 1) // Parse inline styles
         }))
       };
 
-      tableToken.children.push(headerToken);
+      tableToken?.children?.push(headerToken);
       lineIndex++; // Move to the separator line
 
       // ** PARSE SEPARATOR
-      if (!isTableSeparator(lines[lineIndex])) {
+      if (!isTableSeparator(lines[lineIndex] || "")) {
         throw new Error("Invalid table syntax: missing separator line.");
       }
       lineIndex++; // Move to the first data row
 
       // ** PARSE TABLE ROWS
-      while (lineIndex < lines.length && isTableRow(lines[lineIndex])) {
-        const rowLine = lines[lineIndex].trim();
+      while (lineIndex < lines.length && isTableRow(lines[lineIndex] || "")) {
+        const rowLine = lines[lineIndex]?.trim() || "";
         const rowCells = rowLine
           .split("|")
           .map((cell) => cell.trim())
@@ -294,14 +295,14 @@ const lexer = (input: string, depth: number = 0): Token[] => {
           end: { line: lineIndex + 1, column: line.length },
           children: rowCells.map((cell) => ({
             type: TokenType.TABLE_CELL,
-            value: null, // Keep value null since it's parsed into children tokens
+            value: "", // Keep value "" since it's parsed into children tokens
             start: { line: lineIndex + 1, column: rowLine.indexOf(cell) },
             end: { line: lineIndex + 1, column: rowLine.indexOf(cell) + cell.length },
             children: inlineStyleLexer(cell, lineIndex + 1) // Parse inline styles
           }))
         };
 
-        tableToken.children.push(rowToken);
+        tableToken?.children?.push(rowToken);
         lineIndex++;
       }
 
@@ -324,16 +325,16 @@ const lexer = (input: string, depth: number = 0): Token[] => {
       // If it's a block HTML, accumulate until closing tag
       if (!line.trim().match(/^<\w+.*>.*<\/\w+>$/)) {
         // Not a self-contained HTML tag
-        while (lineIndex + 1 < lines.length && !lines[lineIndex + 1].trim().startsWith("</")) {
+        while (lineIndex + 1 < lines.length && !lines[lineIndex + 1]?.trim().startsWith("</")) {
           lineIndex++;
           htmlToken.value += "\n" + lines[lineIndex]; // Append the next line of HTML
-          htmlToken.end = { line: lineIndex + 1, column: lines[lineIndex].length };
+          htmlToken.end = { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 };
         }
 
         if (lineIndex + 1 < lines.length) {
           lineIndex++; // Move past the closing tag
           htmlToken.value += "\n" + lines[lineIndex]; // Include the closing tag
-          htmlToken.end = { line: lineIndex + 1, column: lines[lineIndex].length };
+          htmlToken.end = { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 };
         }
       }
 
@@ -376,51 +377,51 @@ const inlineStyleLexer = (input: string, line: number): Token[] => {
 
   while (cursor < input.length) {
     // Skip leading whitespace
-    while (/\s/.test(input[cursor])) {
+    while (/\s/.test(input[cursor] || "")) {
       cursor++;
     }
 
     // ** INLINE CODE CHECK
     const inlineCodeMatch = input.slice(cursor).match(/^`([^`]+)`/);
     if (inlineCodeMatch) {
-      addToken(TokenType.INLINE_CODE, inlineCodeMatch[1], inlineCodeMatch[0].length);
+      addToken(TokenType.INLINE_CODE, inlineCodeMatch[1] || "", inlineCodeMatch[0].length);
       continue;
     }
     // ** BOLD CHECK
     const boldMatch = input.slice(cursor).match(/^\*\*(.*?)\*\*/);
     if (boldMatch) {
-      addToken(TokenType.BOLD, boldMatch[1], boldMatch[0].length);
+      addToken(TokenType.BOLD, boldMatch[1] || "", boldMatch[0].length);
       continue;
     }
 
     // ** ITALIC CHECK
     const italicMatch = input.slice(cursor).match(/^_(.*?)_/);
     if (italicMatch) {
-      addToken(TokenType.ITALIC, italicMatch[1], italicMatch[0].length);
+      addToken(TokenType.ITALIC, italicMatch[1] || "", italicMatch[0].length);
       continue;
     }
 
     // ** STRIKETHROUGH CHECK
     const strikethroughMatch = input.slice(cursor).match(/^~~(.*?)~~/);
     if (strikethroughMatch) {
-      addToken(TokenType.STRIKETHROUGH, strikethroughMatch[1], strikethroughMatch[0].length);
+      addToken(TokenType.STRIKETHROUGH, strikethroughMatch[1] || "", strikethroughMatch[0].length);
       continue;
     }
 
     // ** LINK CHECK
     const linkMatch = input.slice(cursor).match(/^\[([^\]]+)\]\(([^)]+)\)/);
     if (linkMatch) {
-      addToken(TokenType.LINK, linkMatch[1], linkMatch[0].length);
-      tokens[tokens.length - 1].url = linkMatch[2];
+      addToken(TokenType.LINK, linkMatch[1] || "", linkMatch[0].length);
+      tokens[tokens.length - 1]!.url = linkMatch[2];
       continue;
     }
 
     // ** IMAGE CHECK
     const imageMatch = input.slice(cursor).match(/^!\[([^\]]+)\]\(([^)]+)\)/);
     if (imageMatch) {
-      addToken(TokenType.IMAGE, null, imageMatch[0].length);
-      tokens[tokens.length - 1].url = imageMatch[2];
-      tokens[tokens.length - 1].alt = imageMatch[1];
+      addToken(TokenType.IMAGE, "", imageMatch[0].length);
+      tokens[tokens.length - 1]!.url = imageMatch[2];
+      tokens[tokens.length - 1]!.alt = imageMatch[1];
       continue;
     }
 
