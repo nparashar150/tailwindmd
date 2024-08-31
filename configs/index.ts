@@ -46,7 +46,8 @@ interface Token {
   alt?: string;
 }
 
-export { MAX_NESTING_DEPTH, TokenType, Token };
+export type { Token };
+export { TokenType, MAX_NESTING_DEPTH };
 
 /**
 Headings
