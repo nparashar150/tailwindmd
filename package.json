@@ -1,0 +1,28 @@
+{
+  "name": "tailwindmd",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "pnpm nodemon --watch \"**/*.ts\" --ext \"ts,json\" --exec \"ts-node tests/index.ts\""
+  },
+  "keywords": [
+    "tailwindcss",
+    "markdown",
+    "lexer",
+    "parser",
+    "tailwindmd",
+    "tailwind",
+    "css",
+    "md",
+    "markdown",
+    "ast"
+  ],
+  "author": "@nparashar150",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.5.1",
+    "nodemon": "^3.1.4",
+    "typescript": "^5.5.4"
+  }
+}
