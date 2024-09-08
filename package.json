@@ -1,6 +1,6 @@
 {
-  "name": "@tailwindmd/ast",
-  "version": "0.0.1",
+  "name": "tailwindmd",
+  "version": "0.0.2",
   "description": "",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
