@@ -1,4 +1,4 @@
-import { generateASTFromMarkdown } from "..";
+import { markToAST } from "..";
 
 const input = `
     # Heading 1
@@ -72,5 +72,5 @@ const input = `
     ---
   `;
 
-const tokens = generateASTFromMarkdown(input);
+const tokens = markToAST(input);
 console.log(tokens);
