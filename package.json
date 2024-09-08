@@ -6,9 +6,10 @@
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
   "scripts": {
+    "lint": "tsc",
+    "changeset": "changeset",
     "build": "tsup index.ts --format cjs,esm --dts",
-    "release": "pnpm run build && changeset publish",
-    "lint": "tsc"
+    "release": "pnpm run build && changeset publish"
   },
   "keywords": [
     "tailwindcss",
