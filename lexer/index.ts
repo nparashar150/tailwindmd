@@ -42,7 +42,7 @@ const lexer = (input: string, depth: number = 0): Token[] => {
         end: { line: lineIndex + 1, column: line.length }
       };
 
-      let nestedTokens = content && lexer(content, depth + 1) || [];
+      let nestedTokens = (content && lexer(content, depth + 1)) || [];
       if (nestedTokens.length > 0) {
         // Adjust the line and column numbers for nested tokens
         nestedTokens = nestedTokens.map((token) => {
@@ -57,7 +57,7 @@ const lexer = (input: string, depth: number = 0): Token[] => {
               column: token.end.column
             }
           };
-        })
+        });
 
         classToken.children = nestedTokens;
       }
