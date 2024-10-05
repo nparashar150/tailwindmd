@@ -3,7 +3,7 @@ import { inlineStyleLexer } from "./";
 
 const lineByLineLexer = (input: string, depth: number = 0): Token[] => {
   const tokens: Token[] = [];
-  const lines = input.split("\n")?.filter((line) => line.trim() !== "");
+  const lines = input.split("\n")
 
   if (depth > MAX_NESTING_DEPTH) {
     throw new Error("Maximum nesting depth exceeded");
@@ -17,6 +17,7 @@ const lineByLineLexer = (input: string, depth: number = 0): Token[] => {
     // console.log(`Processing line ${lineIndex}: ${line}`);
 
     if (!line) {
+      tokens.push({ type: TokenType.NEWLINE, value: "", start: { line: 0, column: 0 }, end: { line: 0, column: 0 } });
       lineIndex++;
       continue;
     }
@@ -343,16 +344,8 @@ const lineByLineLexer = (input: string, depth: number = 0): Token[] => {
       continue;
     }
 
-    // ** INLINE STYLE CHECK
-    const inlineTokens = inlineStyleLexer(line, lineIndex + 1);
-    if (inlineTokens.length > 0) {
-      tokens.push(...inlineTokens);
-      lineIndex++;
-      continue;
-    }
-
     // ** NORMAL TEXT CHECK
-    tokens.push({ type: TokenType.PARAGRAPH, value: line, start: { line: lineIndex + 1, column: 0 }, end: { line: lineIndex + 1, column: line.length } });
+    tokens.push({ type: TokenType.PARAGRAPH, value: line, children: inlineStyleLexer(line, lineIndex + 1), start: { line: lineIndex + 1, column: 0 }, end: { line: lineIndex + 1, column: line.length } });
     lineIndex++;
   }
 

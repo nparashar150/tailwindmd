@@ -18,7 +18,8 @@ const inlineStyleLexer = (input: string, line: number): Token[] => {
   while (cursor < input.length) {
     // Skip leading whitespace
     while (/\s/.test(input[cursor] || "")) {
-      cursor++;
+      const whiteSpaceLength = input.slice(cursor).match(/^\s+/)?.[0].length || 0;
+      addToken(TokenType.STRING, whiteSpaceLength > 1 ? Array(whiteSpaceLength)?.fill("&nbsp;")?.join(" ") : " ", whiteSpaceLength);
     }
 
     // ** INLINE CODE CHECK
@@ -68,7 +69,7 @@ const inlineStyleLexer = (input: string, line: number): Token[] => {
     // ** TEXT CHECK
     const textMatch = input.slice(cursor).match(/^[^*_`~]+/);
     if (textMatch) {
-      addToken(TokenType.PARAGRAPH, textMatch[0], textMatch[0].length);
+      addToken(TokenType.STRING, textMatch[0], textMatch[0].length);
       continue;
     }
 
