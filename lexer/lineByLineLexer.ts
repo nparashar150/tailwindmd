@@ -102,6 +102,16 @@ const lineByLineLexer = (input: string, depth: number = 0): Token[] => {
         // Tokenize inline styles directly within blockquote content
         const inlineTokens = inlineStyleLexer(blockquoteLine, lineIndex + 1);
 
+        // If the blockquote has children, add a newline token
+        if (blockquote?.children?.length !== 0) {
+          blockquote?.children?.push({
+            type: TokenType.NEWLINE,
+            value: "",
+            start: { line: lineIndex + 1, column: 0 },
+            end: { line: lineIndex + 1, column: blockquoteLine.length }
+          });
+        }
+
         // If the inline lexer produces multiple tokens, append them directly
         if (inlineTokens.length > 0) {
           inlineTokens.forEach((token) => {
@@ -110,7 +120,7 @@ const lineByLineLexer = (input: string, depth: number = 0): Token[] => {
         } else {
           // Otherwise, add a paragraph if the content has no inline styling
           blockquote?.children?.push({
-            type: TokenType.PARAGRAPH,
+            type: TokenType.STRING,
             value: blockquoteLine,
             start: { line: lineIndex + 1, column: 0 },
             end: { line: lineIndex + 1, column: lines[lineIndex]?.length || 0 }
