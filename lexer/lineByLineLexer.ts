@@ -3,7 +3,7 @@ import { inlineStyleLexer } from "./";
 
 const lineByLineLexer = (input: string, depth: number = 0): Token[] => {
   const tokens: Token[] = [];
-  const lines = input.split("\n")
+  const lines = input.split("\n");
 
   if (depth > MAX_NESTING_DEPTH) {
     throw new Error("Maximum nesting depth exceeded");
@@ -344,9 +344,11 @@ const lineByLineLexer = (input: string, depth: number = 0): Token[] => {
       continue;
     }
 
-    // ** NORMAL TEXT CHECK
-    tokens.push({ type: TokenType.PARAGRAPH, value: line, children: inlineStyleLexer(line, lineIndex + 1), start: { line: lineIndex + 1, column: 0 }, end: { line: lineIndex + 1, column: line.length } });
+    tokens.push(...inlineStyleLexer(line, lineIndex + 1));
     lineIndex++;
+
+    // // ** NORMAL TEXT CHECK
+    // tokens.push({ type: TokenType.PARAGRAPH, value: line, children: inlineStyleLexer(line, lineIndex + 1), start: { line: lineIndex + 1, column: 0 }, end: { line: lineIndex + 1, column: line.length } });
   }
 
   if (depth === 0) tokens.push({ type: TokenType.EOF, value: "", start: { line: lineIndex + 1, column: 0 }, end: { line: lineIndex + 1, column: 0 } });

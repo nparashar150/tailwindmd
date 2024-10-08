@@ -31,7 +31,7 @@ const getTag = (type: TokenType): { openTag: string; closeTag: string } => {
     case TokenType.CODE_BLOCK:
       return { openTag: "<pre><code>", closeTag: "</code></pre>" };
     case TokenType.BLOCKQUOTE:
-      return { openTag: "<blockquote>", closeTag: "</blockquote>" };
+      return { openTag: '<blockquote class="p-4 my-4 border-s-4 border-gray-300">', closeTag: "</blockquote>" };
     case TokenType.ORDERED_LIST:
       return { openTag: "<ol>", closeTag: "</ol>" };
     case TokenType.UNORDERED_LIST:
